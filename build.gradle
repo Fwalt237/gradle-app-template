@@ -1,19 +1,121 @@
 plugins {
-    id 'java'
+    //id 'java'
+    id "org.sonarqube" version "5.1.0.4882"
+    id 'jacoco'
 }
 
-group = 'com.mjc.school'
-version = '1.0-SNAPSHOT'
-
-repositories {
-    mavenCentral()
+sonar {
+    properties {
+        property "sonar.projectKey", "gradle-app-template"
+        property "sonar.projectName", "gradle-app-template"
+        property "sonar.host.url", "http://localhost:9000"
+        property "sonar.coverage.jacoco.xmlReportPaths", "${rootProject.projectDir}/**/build/reports/jacoco/test/jacocoTestReport.xml"
+    }
 }
 
-dependencies {
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
+wrapper {
+    gradleVersion = gradlewVersion
 }
 
-test {
-    useJUnitPlatform()
+subprojects{
+
+    apply plugin: 'java'
+    apply plugin: 'jacoco'
+    apply plugin: 'checkstyle'
+
+    group = 'com.mjc.school'
+    version = '1.0-SNAPSHOT'
+
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+
+    repositories {
+        mavenCentral()
+    }
+
+
+    jacoco {
+        toolVersion = "0.8.11"
+    }
+
+    jacocoTestReport {
+        reports {
+            xml.required = true
+            html.required = true
+        }
+    }
+
+    plugins.withId('org.springframework.boot') {
+        bootJar {
+            enabled = false
+        }
+    }
+    jar {
+        enabled = true
+    }
+
+    tasks.withType(Checkstyle) {
+        enabled = false
+    }
+
+
+    dependencies {
+        testImplementation platform('org.junit:junit-bom:5.10.0')
+        testImplementation 'org.junit.jupiter:junit-jupiter'
+        testImplementation "com.tngtech.archunit:archunit-junit5:$archUnitVersion"
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        testImplementation "com.h2database:h2:$h2Version"
+
+        testImplementation "io.rest-assured:rest-assured:$restAssuredVersion"
+        testImplementation "io.rest-assured:json-path:$restAssuredVersion"
+        testImplementation "io.rest-assured:xml-path:$restAssuredVersion"
+
+        implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+
+        implementation group: 'io.springfox', name: 'springfox-swagger2', version: '3.0.0'
+        implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '3.0.0'
+
+    }
+
+    configurations {
+        testImplementation {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        }
+    }
+
+    test {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+
+    check {
+        dependsOn = [
+                test,
+                checkstyleMain,
+        ]
+    }
+
+    tasks.withType(JavaCompile) {
+        options.compilerArgs = [
+                "-Xlint:deprecation",
+                "-Xlint:unchecked",
+                "-parameters",
+        ]
+    }
+}
+
+project(':module-web') {
+    plugins.withId('org.springframework.boot') {
+        bootJar {
+            enabled = true
+        }
+        jar{
+            enabled = false
+        }
+    }
+}
+tasks.named('sonar').configure {
+    dependsOn subprojects.test
 }
