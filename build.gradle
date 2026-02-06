@@ -8,7 +8,6 @@ sonar {
         property "sonar.projectKey", "gradle-app-template"
         property "sonar.projectName", "gradle-app-template"
         property "sonar.host.url", "http://localhost:9000"
-        property "sonar.coverage.jacoco.xmlReportPaths", "${rootProject.projectDir}/**/build/reports/jacoco/test/jacocoTestReport.xml"
     }
 }
 
@@ -106,15 +105,23 @@ subprojects{
 }
 
 project(':module-web') {
+    apply plugin: 'war'
+
+    war{
+        archiveFileName = "gradle-app-template.war"
+    }
+
     plugins.withId('org.springframework.boot') {
         bootJar {
+            enabled = false
+        }
+        bootWar{
             enabled = true
         }
         jar{
             enabled = false
         }
     }
-    apply plugin: 'war'
 }
 
 tasks.named('sonar').configure {
