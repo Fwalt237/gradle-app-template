@@ -108,6 +108,7 @@ project(':module-web') {
     apply plugin: 'war'
 
     war{
+        enabled = true
         archiveFileName = "gradle-app-template.war"
     }
 
@@ -116,7 +117,7 @@ project(':module-web') {
             enabled = false
         }
         bootWar{
-            enabled = true
+            enabled = false
         }
         jar{
             enabled = false
