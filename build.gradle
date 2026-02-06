@@ -1,5 +1,4 @@
 plugins {
-    //id 'java'
     id "org.sonarqube" version "5.1.0.4882"
     id 'jacoco'
 }
@@ -115,7 +114,9 @@ project(':module-web') {
             enabled = false
         }
     }
+    apply plugin: 'war'
 }
+
 tasks.named('sonar').configure {
     dependsOn subprojects.test
 }
