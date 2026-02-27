@@ -8,11 +8,11 @@ import java.util.List;
 
 public class EntitySearchSpecification {
 
-    private Pagination pagination;
+    private final Pagination pagination;
 
-    private List<Sorting> sorting;
+    private final List<Sorting> sorting;
 
-    private Specification searchFilterSpecification;
+    private final Specification searchFilterSpecification;
 
     private EntitySearchSpecification(Builder builder) {
         this.pagination = builder.pagination;

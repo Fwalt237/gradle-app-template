@@ -18,6 +18,10 @@ public enum ServiceErrorCode {
             "entity id existence."),
     COMMENT_CONFLICT("000051", "Comment has a persistence conflict due to " +
             "entity id existence."),
+    BAD_CREDENTIALS("000032","Invalid credentials"),
+    ACCESS_DENIED("000023","Access Denied: you don't have the necessary permissions."),
+    USERNAME_DOES_NOT_EXIST("00006","Username not found"),
+    AUTHENTICATION_FAILED("000024","Authentication failed"),
     ;
 
     private final String errorCode;

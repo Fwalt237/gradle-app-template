@@ -1,8 +1,6 @@
 package com.mjc.school.service.impl;
 
-import com.mjc.school.repository.filter.pagination.Page;
 import com.mjc.school.repository.filter.pagination.Pagination;
-import com.mjc.school.repository.filter.specification.EntitySearchSpecification;
 import com.mjc.school.repository.impl.AuthorRepository;
 import com.mjc.school.repository.impl.NewsRepository;
 import com.mjc.school.repository.impl.TagRepository;
@@ -18,9 +16,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -69,7 +72,8 @@ public class NewsServiceTest {
         news.setContent("Language");
         news.setCreatedDate(LocalDateTime.now());
         news.setLastUpdatedDate(LocalDateTime.now());
-
+        news.setTags(new ArrayList<>());
+        news.setComments(new ArrayList<>());
 
         createRequest = new CreateNewsDtoRequest("Java","Language","Gosling", List.of("Technology"),new ArrayList<>());
         updateRequest = new UpdateNewsDtoRequest("Java","Language","Gosling", List.of("Technology"),new ArrayList<>());
@@ -85,10 +89,10 @@ public class NewsServiceTest {
     void readAll_ShouldReturnPagedNews(){
 
         ResourceSearchFilterRequestDTO searchRequest = new ResourceSearchFilterRequestDTO(1,10, Collections.emptyList(),Collections.emptyList());
-        Page<News> page = new Page<>(List.of(news),1,1);
+        Page<News> page = new PageImpl<>(List.of(news));
 
         when(newsSearchFilterMapper.map(any())).thenReturn(new ResourceSearchFilter(new Pagination(1, 10),Collections.emptyList(),Collections.emptyList()));
-        when(newsRepository.readAll(any(EntitySearchSpecification.class))).thenReturn(page);
+        when(newsRepository.findAll(ArgumentMatchers.<Specification<News>>any(),any(Pageable.class))).thenReturn(page);
         when(mapper.modelListToDtoList(anyList())).thenReturn(List.of(newsDtoResponse));
 
         PageDtoResponse<NewsDtoResponse> result = newsService.readAll(searchRequest);
@@ -97,14 +101,14 @@ public class NewsServiceTest {
         assertThat(result.getModelDtoList()).hasSize(1);
         assertThat(result.getCurrentPage()).isEqualTo(1);
         assertThat(result.getPageCount()).isEqualTo(1);
-        verify(newsRepository).readAll(any(EntitySearchSpecification.class));
+        verify(newsRepository).findAll(ArgumentMatchers.<Specification<News>>any(),any(Pageable.class));
     }
 
     @Test
     @DisplayName("Should return news ID when news exists")
     void readById_WhenNewsExists_ShouldReturnNews(){
 
-        when(newsRepository.readById(1L)).thenReturn(Optional.of(news));
+        when(newsRepository.findById(1L)).thenReturn(Optional.of(news));
         when(mapper.modelToDto(news)).thenReturn(newsDtoResponse);
 
         NewsDtoResponse result = newsService.readById(1L);
@@ -114,30 +118,30 @@ public class NewsServiceTest {
         assertThat(result.getTitle()).isEqualTo("Java");
         assertThat(result.getContent()).isEqualTo("Language");
 
-        verify(newsRepository).readById(1L);
+        verify(newsRepository).findById(1L);
     }
 
     @Test
     @DisplayName("Should throw NotFoundException when news does not exist")
     void readById_WhenNewsDoesNotExist_ShouldThrowNotFoundException(){
 
-        when(newsRepository.readById(2L)).thenReturn(Optional.empty());
+        when(newsRepository.findById(2L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(()->newsService.readById(2L))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("News with id 2 does not exist.");
 
-        verify(newsRepository).readById(2L);
+        verify(newsRepository).findById(2L);
     }
 
     @Test
-    @DisplayName("Should create news successfully with new author ans tags")
+    @DisplayName("Should create news successfully with new author and tags")
     void create_ShouldCreateNewsWithNewAuthorAndTags(){
-        when(authorRepository.readByName("Gosling")).thenReturn(Optional.empty());
-        when(tagRepository.readByName("Technology")).thenReturn(Optional.empty());
+        when(authorRepository.findByName("Gosling")).thenReturn(Optional.empty());
+        when(tagRepository.findByName("Technology")).thenReturn(Optional.empty());
 
         when(mapper.dtoToModel(createRequest)).thenReturn(news);
-        when(newsRepository.create(news)).thenReturn(news);
+        when(newsRepository.save(news)).thenReturn(news);
         when(mapper.modelToDto(news)).thenReturn(newsDtoResponse);
 
         NewsDtoResponse result = newsService.create(createRequest);
@@ -145,9 +149,9 @@ public class NewsServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getContent()).isEqualTo("Language");
-        verify(authorRepository).create(any(Author.class));
-        verify(tagRepository).create(any(Tag.class));
-        verify(newsRepository).create(news);
+        verify(authorRepository).save(any(Author.class));
+        verify(tagRepository).save(any(Tag.class));
+        verify(newsRepository).save(news);
     }
 
     @Test
@@ -161,34 +165,33 @@ public class NewsServiceTest {
         mockTag.setId(1L);
         mockTag.setName("Technology");
 
-        when(newsRepository.existById(1L)).thenReturn(true);
+        when(newsRepository.findById(1L)).thenReturn(Optional.of(news));
 
-        when(authorRepository.readByName("Gosling"))
+        when(authorRepository.findByName("Gosling"))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(mockAuthor));
 
-        when(tagRepository.readByName("Technology"))
+        when(tagRepository.findByName("Technology"))
                 .thenReturn(Optional.empty())
                 .thenReturn(Optional.of(mockTag));
 
-        when(mapper.dtoToModel(updateRequest)).thenReturn(news);
-        when(newsRepository.update(any(News.class))).thenReturn(news);
+        when(newsRepository.save(any(News.class))).thenReturn(news);
         when(mapper.modelToDto(news)).thenReturn(newsDtoResponse);
 
         NewsDtoResponse result = newsService.update(1L, updateRequest);
 
         assertThat(result).isNotNull();
         assertThat(result.getContent()).isEqualTo("Language");
-        verify(authorRepository).create(any(Author.class));
-        verify(tagRepository).create(any(Tag.class));
-        verify(newsRepository).update(any(News.class));
+        verify(authorRepository).save(any(Author.class));
+        verify(tagRepository).save(any(Tag.class));
+        verify(newsRepository).save(any(News.class));
     }
 
     @Test
     @DisplayName("Should delete news when news exists")
     void deleteById_WhenNewsExists_ShouldDeleteNews(){
 
-        when(newsRepository.existById(1L)).thenReturn(true);
+        when(newsRepository.existsById(1L)).thenReturn(true);
         doNothing().when(newsRepository).deleteById(1L);
 
         newsService.deleteById(1L);
@@ -201,7 +204,7 @@ public class NewsServiceTest {
     @DisplayName("Should throw NotFoundException when deleting non-existent news")
     void deleteById_WhenCommentDoesNotExist_ShouldThrowNotFoundException(){
 
-        when(newsRepository.existById(2L)).thenReturn(false);
+        when(newsRepository.existsById(2L)).thenReturn(false);
 
         assertThatThrownBy(()->newsService.deleteById(2L))
                 .isInstanceOf(NotFoundException.class)

@@ -1,7 +1,6 @@
 package com.mjc.school.service.impl;
 
 import com.mjc.school.repository.exception.EntityConflictRepositoryException;
-import com.mjc.school.repository.filter.pagination.Page;
 import com.mjc.school.repository.impl.AuthorRepository;
 import com.mjc.school.repository.model.Author;
 import com.mjc.school.service.BaseService;
@@ -16,6 +15,9 @@ import com.mjc.school.service.filter.mapper.AuthorSearchFilterMapper;
 import com.mjc.school.service.mapper.AuthorMapper;
 import com.mjc.school.service.validator.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -42,15 +44,17 @@ public class AuthorService
     @Transactional(readOnly = true)
     public PageDtoResponse<AuthorDtoResponse> readAll(@Valid ResourceSearchFilterRequestDTO searchFilterRequest) {
         final ResourceSearchFilter searchFilter = authorSearchFilterMapper.map(searchFilterRequest);
-        final Page page = authorRepository.readAll(getEntitySearchSpecification(searchFilter));
-        final List<AuthorDtoResponse> modelDtoList = mapper.modelListToDtoList(page.entities());
-        return new PageDtoResponse<>(modelDtoList, page.currentPage(), page.pageCount());
+        final Specification<Author> specification = getEntitySearchSpecification(searchFilter).getSearchFilterSpecification();
+        final Pageable pageable = createPageable(searchFilter);
+        final Page<Author> page = authorRepository.findAll(specification,pageable);
+        final List<AuthorDtoResponse> modelDtoList = mapper.modelListToDtoList(page.getContent());
+        return new PageDtoResponse<>(modelDtoList, page.getNumber()+1, page.getTotalPages());
     }
 
     @Override
     @Transactional(readOnly = true)
     public AuthorDtoResponse readById(Long id) {
-        return authorRepository.readById(id)
+        return authorRepository.findById(id)
             .map(mapper::modelToDto)
             .orElseThrow(
                 () -> new NotFoundException(
@@ -67,7 +71,7 @@ public class AuthorService
     public AuthorDtoResponse create(@Valid AuthorDtoRequest createRequest) {
         try {
             Author model = mapper.dtoToModel(createRequest);
-            model = authorRepository.create(model);
+            model = authorRepository.save(model);
             return mapper.modelToDto(model);
         } catch (EntityConflictRepositoryException exc) {
             throw new ResourceConflictServiceException(AUTHOR_CONFLICT.getMessage(), AUTHOR_CONFLICT.getErrorCode(), exc.getMessage());
@@ -77,20 +81,21 @@ public class AuthorService
     @Override
     @Transactional
     public AuthorDtoResponse update(Long id, @Valid AuthorDtoRequest updateRequest) {
-        if (authorRepository.existById(id)) {
-            Author model = mapper.dtoToModel(updateRequest);
-            model.setId(id);
-            model = authorRepository.update(model);
-            return mapper.modelToDto(model);
-        } else {
-            throw new NotFoundException(String.format(AUTHOR_ID_DOES_NOT_EXIST.getMessage(), id));
+        Author author = authorRepository.findById(id)
+                .orElseThrow(()->new NotFoundException(String.format(AUTHOR_ID_DOES_NOT_EXIST.getMessage(), id)));
+
+        if(updateRequest.name()!=null && !updateRequest.name().isBlank()){
+            author.setName(updateRequest.name());
         }
+        Author updatedAuthor = authorRepository.save(author);
+        return mapper.modelToDto(updatedAuthor);
+
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        if (authorRepository.existById(id)) {
+        if (authorRepository.existsById(id)) {
             authorRepository.deleteById(id);
         } else {
             throw new NotFoundException(String.format(AUTHOR_ID_DOES_NOT_EXIST.getMessage(), id));
@@ -98,7 +103,7 @@ public class AuthorService
     }
 
     public AuthorDtoResponse readByNewsId(Long newsId) {
-        return authorRepository.readByNewsId(newsId)
+        return authorRepository.findByNewsId(newsId)
             .map(mapper::modelToDto)
             .orElseThrow(
                 () ->

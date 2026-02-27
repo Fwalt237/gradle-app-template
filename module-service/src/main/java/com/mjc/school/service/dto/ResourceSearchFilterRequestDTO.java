@@ -16,11 +16,11 @@ public class ResourceSearchFilterRequestDTO {
 
     private int pageSize = 10;
 
-    // Value example: name:asc
+
     @SortAndOrder
     private List<String> sortByAndOrder = new ArrayList<>();
 
-    // Value example: name:like:tag
+
     @SearchCriteria
     private List<String> searchCriteria = new ArrayList<>();
 

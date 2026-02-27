@@ -6,6 +6,10 @@ import com.mjc.school.service.exceptions.ServiceException;
 import com.mjc.school.service.exceptions.ValidatorException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -37,6 +41,30 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ErrorResponse> handleResourceConflictException(ServiceException exc) {
         return buildErrorResponse(exc.getCode(), exc.getMessage(),
                 exc.getDetails(), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(value = BadCredentialsException.class)
+    protected ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException bce){
+        return buildErrorResponse(BAD_CREDENTIALS.getErrorCode(),BAD_CREDENTIALS.getMessage(),
+                bce.getMessage(),HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(value = AccessDeniedException.class)
+    protected ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ade){
+        return buildErrorResponse(ACCESS_DENIED.getErrorCode(),ACCESS_DENIED.getMessage(),
+                ade.getMessage(),HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(value = UsernameNotFoundException.class)
+    protected ResponseEntity<ErrorResponse> handleUsernameNotFoundException(UsernameNotFoundException unfe){
+        return buildErrorResponse(USERNAME_DOES_NOT_EXIST.getErrorCode(),USERNAME_DOES_NOT_EXIST.getMessage(),
+                unfe.getMessage(),HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(value = AuthenticationException.class)
+    protected ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException ae) {
+        return buildErrorResponse(AUTHENTICATION_FAILED.getErrorCode(), AUTHENTICATION_FAILED.getMessage(),
+                ae.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(value = Exception.class)

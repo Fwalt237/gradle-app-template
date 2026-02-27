@@ -1,24 +1,18 @@
 package com.mjc.school.repository.impl;
 
 import com.mjc.school.repository.model.Comment;
-import javax.persistence.TypedQuery;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public class CommentRepository extends AbstractDBRepository<Comment, Long> {
-    @Override
-    void update(Comment prevState, Comment nextState) {
-        if (nextState.getContent() != null && !nextState.getContent().isBlank()) {
-            prevState.setContent(nextState.getContent());
-        }
-    }
+public interface CommentRepository extends JpaRepository<Comment, Long>, JpaSpecificationExecutor<Comment> {
 
-    public List<Comment> readByNewsId(Long newsId) {
-        TypedQuery<Comment> typedQuery = entityManager.createQuery("SELECT c FROM Comment c INNER JOIN " +
-            "c.news n WHERE n.id=:newsId", Comment.class);
-        typedQuery.setParameter("newsId", newsId);
-        return typedQuery.getResultList();
-    }
+    @Query("SELECT c FROM Comment c INNER JOIN c.news n WHERE n.id =:newsId")
+    List<Comment> findByNewsId(@Param("newsId") Long newsId);
+
 }

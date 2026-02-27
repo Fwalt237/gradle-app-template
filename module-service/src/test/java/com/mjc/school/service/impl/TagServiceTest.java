@@ -1,14 +1,9 @@
 package com.mjc.school.service.impl;
 
-import com.mjc.school.repository.filter.pagination.Page;
 import com.mjc.school.repository.filter.pagination.Pagination;
-import com.mjc.school.repository.filter.specification.EntitySearchSpecification;
 import com.mjc.school.repository.impl.TagRepository;
 import com.mjc.school.repository.model.Tag;
-import com.mjc.school.service.dto.PageDtoResponse;
-import com.mjc.school.service.dto.ResourceSearchFilterRequestDTO;
-import com.mjc.school.service.dto.TagDtoRequest;
-import com.mjc.school.service.dto.TagDtoResponse;
+import com.mjc.school.service.dto.*;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.filter.ResourceSearchFilter;
 import com.mjc.school.service.filter.mapper.TagSearchFilterMapper;
@@ -17,9 +12,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Collections;
 import java.util.List;
@@ -66,10 +66,10 @@ public class TagServiceTest {
     void readAll_ShouldReturnPagedTags(){
 
         ResourceSearchFilterRequestDTO searchRequest = new ResourceSearchFilterRequestDTO(1,10, Collections.emptyList(),Collections.emptyList());
-        Page<Tag> page = new Page<>(List.of(tag),1,1);
+        Page<Tag> page = new PageImpl<>(List.of(tag));
 
         when(tagSearchFilterMapper.map(any())).thenReturn(new ResourceSearchFilter(new Pagination(1, 10),Collections.emptyList(),Collections.emptyList()));
-        when(tagRepository.readAll(any(EntitySearchSpecification.class))).thenReturn(page);
+        when(tagRepository.findAll(ArgumentMatchers.<Specification<Tag>>any(),any(Pageable.class))).thenReturn(page);
         when(mapper.modelListToDtoList(anyList())).thenReturn(List.of(tagDtoResponse));
 
         PageDtoResponse<TagDtoResponse> result = tagService.readAll(searchRequest);
@@ -78,14 +78,14 @@ public class TagServiceTest {
         assertThat(result.getModelDtoList()).hasSize(1);
         assertThat(result.getCurrentPage()).isEqualTo(1);
         assertThat(result.getPageCount()).isEqualTo(1);
-        verify(tagRepository).readAll(any(EntitySearchSpecification.class));
+        verify(tagRepository).findAll(ArgumentMatchers.<Specification<Tag>>any(),any(Pageable.class));
     }
 
     @Test
     @DisplayName("Should return tag ID when tag exists")
     void readById_WhenTagExists_ShouldReturnTag(){
 
-        when(tagRepository.readById(1L)).thenReturn(Optional.of(tag));
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(tag));
         when(mapper.modelToDto(tag)).thenReturn(tagDtoResponse);
 
         TagDtoResponse result = tagService.readById(1L);
@@ -93,7 +93,7 @@ public class TagServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getName()).isEqualTo("Technology");
-        verify(tagRepository).readById(1L);
+        verify(tagRepository).findById(1L);
     }
 
 
@@ -101,13 +101,13 @@ public class TagServiceTest {
     @DisplayName("Should throw NotFoundException when tag does not exist")
     void readById_WhenTagDoesNotExist_ShouldThrowNotFoundException(){
 
-        when(tagRepository.readById(2L)).thenReturn(Optional.empty());
+        when(tagRepository.findById(2L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(()->tagService.readById(2L))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("Tag with id 2 does not exist.");
 
-        verify(tagRepository).readById(2L);
+        verify(tagRepository).findById(2L);
     }
 
 
@@ -116,7 +116,7 @@ public class TagServiceTest {
     void create_ShouldCreateAndReturnTag(){
 
         when(mapper.dtoToModel(tagDtoRequest)).thenReturn(tag);
-        when(tagRepository.create(tag)).thenReturn(tag);
+        when(tagRepository.save(tag)).thenReturn(tag);
         when(mapper.modelToDto(tag)).thenReturn(tagDtoResponse);
 
         TagDtoResponse result = tagService.create(tagDtoRequest);
@@ -124,36 +124,35 @@ public class TagServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getName()).isEqualTo("Technology");
-        verify(tagRepository).create(tag);
+        verify(tagRepository).save(tag);
     }
 
     @Test
     @DisplayName("Should update tag when tag exists")
     void update_WhenTagExists_ShouldUpdateTag(){
 
-        when(tagRepository.existById(1L)).thenReturn(true);
-        when(mapper.dtoToModel(tagDtoRequest)).thenReturn(tag);
-        when(tagRepository.update(tag)).thenReturn(tag);
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(tag));
+        when(tagRepository.save(tag)).thenReturn(tag);
         when(mapper.modelToDto(tag)).thenReturn(tagDtoResponse);
 
         TagDtoResponse result = tagService.update(1L,tagDtoRequest);
 
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
-        verify(tagRepository).update(tag);
+        verify(tagRepository).save(tag);
     }
 
     @Test
     @DisplayName("Should throw NotFoundException when updating non-existent tag")
     void update_WhenTagDoesNotExist_ShouldThrowNotFoundException(){
 
-        when(tagRepository.existById(2L)).thenReturn(false);
+        when(tagRepository.findById(2L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(()->tagService.update(2L,tagDtoRequest))
                 .isInstanceOf(NotFoundException.class)
                 .hasMessageContaining("Tag with id 2 does not exist.");
 
-        verify(tagRepository,never()).update(any());
+        verify(tagRepository,never()).save(any());
     }
 
 
@@ -161,7 +160,7 @@ public class TagServiceTest {
     @DisplayName("Should delete tag when tag exists")
     void deleteById_WhenTagExists_ShouldDeleteTag(){
 
-        when(tagRepository.existById(1L)).thenReturn(true);
+        when(tagRepository.existsById(1L)).thenReturn(true);
         doNothing().when(tagRepository).deleteById(1L);
 
         tagService.deleteById(1L);
@@ -174,7 +173,7 @@ public class TagServiceTest {
     @DisplayName("Should throw NotFoundException when deleting non-existent tag")
     void deleteById_WhenTagDoesNotExist_ShouldThrowNotFoundException(){
 
-        when(tagRepository.existById(2L)).thenReturn(false);
+        when(tagRepository.existsById(2L)).thenReturn(false);
 
         assertThatThrownBy(()->tagService.deleteById(2L))
                 .isInstanceOf(NotFoundException.class)
@@ -188,13 +187,13 @@ public class TagServiceTest {
     @DisplayName("Should return tags by news ID")
     void readByNewsId_WhenTagExists_ShouldReturnTag(){
 
-        when(tagRepository.readByNewsId(1L)).thenReturn(List.of(tag));
+        when(tagRepository.findByNewsId(1L)).thenReturn(List.of(tag));
         when(mapper.modelListToDtoList(List.of(tag))).thenReturn(List.of(tagDtoResponse));
 
         List<TagDtoResponse> result = tagService.readByNewsId(1L);
 
         assertThat(result).isNotNull();
         assertThat(result.size()).isGreaterThan(0);
-        verify(tagRepository).readByNewsId(1L);
+        verify(tagRepository).findByNewsId(1L);
     }
 }

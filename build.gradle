@@ -31,7 +31,6 @@ subprojects{
         mavenCentral()
     }
 
-
     jacoco {
         toolVersion = "0.8.11"
     }
@@ -63,6 +62,8 @@ subprojects{
         testImplementation "com.tngtech.archunit:archunit-junit5:$archUnitVersion"
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
         testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
         testImplementation "com.h2database:h2:$h2Version"
 
@@ -74,6 +75,17 @@ subprojects{
 
         implementation 'io.springfox:springfox-swagger2:3.0.0'
         implementation 'io.springfox:springfox-swagger-ui:3.0.0'
+
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+
+        implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+        implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+        implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+        runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+        runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+        testImplementation 'org.springframework.security:spring-security-test'
     }
 
     configurations {

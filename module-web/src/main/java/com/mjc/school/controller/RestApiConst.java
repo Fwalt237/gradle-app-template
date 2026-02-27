@@ -10,6 +10,7 @@ public final class RestApiConst {
     public static final String TAG_API_ROOT_PATH = API_ROOT_PATH + "/tags";
     public static final String COMMENTS_API_ROOT_PATH = API_ROOT_PATH + "/comments";
 
+    public static final String AUTHENTICATION_API_ROOT_PATH= API_ROOT_PATH + "/auth";
     private RestApiConst(){
     }
 }

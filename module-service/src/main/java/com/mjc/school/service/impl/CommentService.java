@@ -1,22 +1,21 @@
 package com.mjc.school.service.impl;
 
 import com.mjc.school.repository.exception.EntityConflictRepositoryException;
-import com.mjc.school.repository.filter.pagination.Page;
 import com.mjc.school.repository.impl.CommentRepository;
 import com.mjc.school.repository.impl.NewsRepository;
 import com.mjc.school.repository.model.Comment;
 import com.mjc.school.service.BaseService;
-import com.mjc.school.service.dto.CommentsDtoRequest;
-import com.mjc.school.service.dto.CommentsDtoResponse;
-import com.mjc.school.service.dto.PageDtoResponse;
-import com.mjc.school.service.dto.ResourceSearchFilterRequestDTO;
+import com.mjc.school.service.dto.*;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.exceptions.ResourceConflictServiceException;
 import com.mjc.school.service.filter.ResourceSearchFilter;
-import com.mjc.school.service.filter.mapper.BaseSearchFilterMapper;
+import com.mjc.school.service.filter.mapper.CommentsSearchFilterMapper;
 import com.mjc.school.service.mapper.CommentMapper;
 import com.mjc.school.service.validator.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,13 +30,13 @@ public class CommentService
     private final CommentRepository commentRepository;
     private final NewsRepository newsRepository;
     private final CommentMapper mapper;
-    private final BaseSearchFilterMapper commentsSearchFilterMapper;
+    private final CommentsSearchFilterMapper commentsSearchFilterMapper;
 
     @Autowired
     public CommentService(CommentRepository commentRepository,
                           NewsRepository newsRepository,
                           CommentMapper mapper,
-                          BaseSearchFilterMapper commentsSearchFilterMapper) {
+                          CommentsSearchFilterMapper  commentsSearchFilterMapper) {
         this.commentRepository = commentRepository;
         this.newsRepository = newsRepository;
         this.mapper = mapper;
@@ -48,15 +47,17 @@ public class CommentService
     @Transactional(readOnly = true)
     public PageDtoResponse<CommentsDtoResponse> readAll(@Valid ResourceSearchFilterRequestDTO searchFilterRequest) {
         final ResourceSearchFilter searchFilter = commentsSearchFilterMapper.map(searchFilterRequest);
-        final Page page = commentRepository.readAll(getEntitySearchSpecification(searchFilter));
-        final List<CommentsDtoResponse> modelDtoList = mapper.modelListToDtoList(page.entities());
-        return new PageDtoResponse<>(modelDtoList, page.currentPage(), page.pageCount());
+        final Specification<Comment> specification = getEntitySearchSpecification(searchFilter).getSearchFilterSpecification();
+        final Pageable pageable = createPageable(searchFilter);
+        final Page<Comment> page = commentRepository.findAll(specification,pageable);
+        final List<CommentsDtoResponse> modelDtoList = mapper.modelListToDtoList(page.getContent());
+        return new PageDtoResponse<>(modelDtoList, page.getNumber()+1, page.getTotalPages());
     }
 
     @Override
     @Transactional(readOnly = true)
     public CommentsDtoResponse readById(Long id) {
-        return commentRepository.readById(id)
+        return commentRepository.findById(id)
                 .map(mapper::modelToDto)
                 .orElseThrow(
                         () -> new NotFoundException(
@@ -71,12 +72,12 @@ public class CommentService
     @Override
     @Transactional
     public CommentsDtoResponse create(@Valid CommentsDtoRequest createRequest) {
-        if (!newsRepository.existById(createRequest.newsId())) {
+        if (!newsRepository.existsById(createRequest.newsId())) {
             throw new NotFoundException(String.format(NEWS_ID_DOES_NOT_EXIST.getMessage(), createRequest.newsId()));
         }
         try {
             Comment model = mapper.dtoToModel(createRequest);
-            model = commentRepository.create(model);
+            model = commentRepository.save(model);
             return mapper.modelToDto(model);
         } catch (EntityConflictRepositoryException exc) {
             throw new ResourceConflictServiceException(COMMENT_CONFLICT.getMessage(), COMMENT_CONFLICT.getErrorCode(), exc.getMessage());
@@ -86,20 +87,20 @@ public class CommentService
     @Override
     @Transactional
     public CommentsDtoResponse update(Long id, @Valid CommentsDtoRequest updateRequest) {
-        if (commentRepository.existById(id)) {
-            Comment model = mapper.dtoToModel(updateRequest);
-            model.setId(id);
-            model = commentRepository.update(model);
-            return mapper.modelToDto(model);
-        } else {
-            throw new NotFoundException(String.format(COMMENT_ID_DOES_NOT_EXIST.getMessage(), id));
+        Comment comment = commentRepository.findById(id)
+                .orElseThrow(()->new NotFoundException(String.format(COMMENT_ID_DOES_NOT_EXIST.getMessage(), id)));
+
+        if(updateRequest.content()!=null && !updateRequest.content().isBlank()){
+            comment.setContent(updateRequest.content());
         }
+        Comment updatedComment = commentRepository.save(comment);
+        return mapper.modelToDto(updatedComment);
     }
 
     @Override
     @Transactional
     public void deleteById(Long id) {
-        if (commentRepository.existById(id)) {
+        if (commentRepository.existsById(id)) {
             commentRepository.deleteById(id);
         } else {
             throw new NotFoundException(String.format(COMMENT_ID_DOES_NOT_EXIST.getMessage(), id));
@@ -108,6 +109,6 @@ public class CommentService
 
     @Transactional(readOnly = true)
     public List<CommentsDtoResponse> readByNewsId(Long newsId) {
-        return mapper.modelListToDtoList(commentRepository.readByNewsId(newsId));
+        return mapper.modelListToDtoList(commentRepository.findByNewsId(newsId));
     }
 }

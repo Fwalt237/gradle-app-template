@@ -8,6 +8,9 @@ build/
 .idea/
 *.iml
 
+### Ignore local secrets ###
+secrets.properties
+
 ### Eclipse ###
 .apt_generated
 .classpath

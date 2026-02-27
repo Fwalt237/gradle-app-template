@@ -29,6 +29,6 @@ public abstract class CommentMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdDate", ignore = true)
     @Mapping(target = "lastUpdatedDate", ignore = true)
-    @Mapping(target = "news", expression = "java(newsRepository.getReference(dto.newsId()))")
+    @Mapping(target = "news", expression = "java(newsRepository.getReferenceById(dto.newsId()))")
     public abstract Comment dtoToModel(CommentsDtoRequest dto);
 }
