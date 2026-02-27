@@ -69,7 +69,7 @@ public class SecurityConfig {
         http.
                 cors().and()
                 .csrf().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
                 .exceptionHandling()
                     .authenticationEntryPoint((request, response, authException) -> {
