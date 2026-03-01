@@ -7,6 +7,9 @@ import com.mjc.school.service.security.dto.LoginRequest;
 import com.mjc.school.service.security.dto.SignupRequest;
 import com.mjc.school.service.security.jwt.JwtUtil;
 import com.mjc.school.versioning.ApiVersion;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +44,15 @@ public class AuthenticationController {
         this.authenticationManager=authenticationManager;
     }
 
+
+    @ApiOperation(value = "Sign up an user")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "Successfully Sign up an user"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+            @ApiResponse(code = 500, message = "Application failed to process the request")
+    })
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest request){
         if(userService.existsByUsername(request.username())){
@@ -62,11 +74,23 @@ public class AuthenticationController {
         MyUser myUser = (MyUser) authentication.getPrincipal();
         String jwt = jwtUtil.generateToken(myUser);
 
+        List<String> roles = myUser.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .toList();
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new AuthResponse(jwt,List.of("ROLE_USER"),myUser.getEmail(),myUser.getUsername()));
+                .body(new AuthResponse(jwt,roles,myUser.getEmail(),myUser.getUsername()));
 
     }
 
+    @ApiOperation(value = "Login an user")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Successfully logged in an user"),
+            @ApiResponse(code = 401, message = "You are not authorized to view the resource"),
+            @ApiResponse(code = 403, message = "Accessing the resource you were trying to reach is forbidden"),
+            @ApiResponse(code = 404, message = "The resource you were trying to reach is not found"),
+            @ApiResponse(code = 500, message = "Application failed to process the request")
+    })
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request){
         Authentication authentication = authenticationManager.authenticate(

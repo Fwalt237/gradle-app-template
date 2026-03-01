@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class MyOAuth2UserService extends DefaultOAuth2UserService {
@@ -47,13 +48,13 @@ public class MyOAuth2UserService extends DefaultOAuth2UserService {
         String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(registrationId,oauth2User.getAttributes());
-
-        if(!StringUtils.hasText(userInfo.getEmail())){
-            throw new OAuth2AuthenticationProcessingException("Email not found from "+registrationId);
+        String email = userInfo.getEmail();
+        if(!StringUtils.hasText(email)){
+            email = userInfo.getName() + "@"+registrationId+".com";
         }
 
-        Optional<User> optionalUser = userRepository.findByEmail(userInfo.getEmail());
-        User user = new User();
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        User user ;
 
         if(optionalUser.isPresent()){
             user = optionalUser.get();
@@ -63,7 +64,7 @@ public class MyOAuth2UserService extends DefaultOAuth2UserService {
             }
             user = updateExistingUser(user,userInfo);
         }else{
-            user = registerNewUser(userRequest,userInfo);
+            user = registerNewUser(userRequest,userInfo,email);
         }
         return new MyUser(user,oauth2User.getAttributes());
     }
@@ -73,15 +74,15 @@ public class MyOAuth2UserService extends DefaultOAuth2UserService {
         return userRepository.save(user);
     }
 
-    private User registerNewUser(OAuth2UserRequest userRequest, OAuth2UserInfo userInfo){
+    private User registerNewUser(OAuth2UserRequest userRequest, OAuth2UserInfo userInfo, String email){
         User user = new User();
 
         user.setProvider(AuthProvider.valueOf(userRequest.getClientRegistration().getRegistrationId().toUpperCase()));
         user.setProviderId(userInfo.getId());
-        user.setEmail(userInfo.getEmail());
-        user.setPassword("Password_Not_Null");
+        user.setEmail(email);
+        user.setPassword(UUID.randomUUID().toString());
         user.getRoles().add(Role.ROLE_USER);
-        extractedUsername(userInfo, user);
+        extractedUsername(email, user);
         extractedFirstAndLastName(userInfo, user);
         return userRepository.save(user);
     }
@@ -100,8 +101,8 @@ public class MyOAuth2UserService extends DefaultOAuth2UserService {
         }
     }
 
-    private void extractedUsername(OAuth2UserInfo userInfo, User user) {
-        String uniqueUsername = userInfo.getEmail().split("@")[0];
+    private void extractedUsername(String email, User user) {
+        String uniqueUsername = email.split("@")[0];
         int count =1;
         while(userRepository.existsByUsername(uniqueUsername)){
             uniqueUsername=uniqueUsername+count;
