@@ -7,11 +7,22 @@ import com.mjc.school.repository.impl.TagRepository;
 import com.mjc.school.repository.model.Author;
 import com.mjc.school.repository.model.News;
 import com.mjc.school.repository.model.Tag;
-import com.mjc.school.service.dto.*;
+import com.mjc.school.service.dto.AuthorDtoResponse;
+import com.mjc.school.service.dto.CreateNewsDtoRequest;
+import com.mjc.school.service.dto.NewsDtoResponse;
+import com.mjc.school.service.dto.PageDtoResponse;
+import com.mjc.school.service.dto.ResourceSearchFilterRequestDTO;
+import com.mjc.school.service.dto.TagDtoResponse;
+import com.mjc.school.service.dto.UpdateNewsDtoRequest;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.filter.ResourceSearchFilter;
 import com.mjc.school.service.filter.mapper.NewsSearchFilterMapper;
 import com.mjc.school.service.mapper.NewsMapper;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,17 +36,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("News Service Unit tests")
@@ -75,9 +84,9 @@ public class NewsServiceTest {
         news.setTags(new ArrayList<>());
         news.setComments(new ArrayList<>());
 
-        createRequest = new CreateNewsDtoRequest("Java","Language","Gosling", List.of("Technology"),new ArrayList<>());
-        updateRequest = new UpdateNewsDtoRequest("Java","Language","Gosling", List.of("Technology"),new ArrayList<>());
-        newsDtoResponse  = new NewsDtoResponse(1L,"Java","Language",LocalDateTime.now(),LocalDateTime.now(),
+        createRequest = new CreateNewsDtoRequest("Java","Language","https://example.com/image.jpg","https://example.com/icon.png","Gosling", List.of("Technology"),new ArrayList<>());
+        updateRequest = new UpdateNewsDtoRequest("Java","Language","https://example.com/image.jpg","https://example.com/icon.png","Gosling", List.of("Technology"),new ArrayList<>());
+        newsDtoResponse  = new NewsDtoResponse(1L,"Java","Language","https://example.com/image.jpg","https://example.com/icon.png",LocalDateTime.now(),LocalDateTime.now(),
                 new AuthorDtoResponse(1L,"Gosling",LocalDateTime.now(),LocalDateTime.now()),
                 List.of(new TagDtoResponse(1L,"Technology")),
                 new ArrayList<>());

@@ -12,6 +12,8 @@ public class NewsDtoResponse extends RepresentationModel<NewsDtoResponse> {
     private Long id;
     private String title;
     private String content;
+    private String imageUrl;
+    private String sourceIcon;
     private LocalDateTime createdDate;
     private LocalDateTime lastUpdatedDate;
     private AuthorDtoResponse authorDto;
@@ -23,10 +25,14 @@ public class NewsDtoResponse extends RepresentationModel<NewsDtoResponse> {
         commentsDto = new ArrayList<>();
     }
 
-    public NewsDtoResponse(Long id, String title, String content, LocalDateTime createdDate, LocalDateTime lastUpdatedDate, AuthorDtoResponse authorDto, List<TagDtoResponse> tagsDto, List<CommentsDtoForNewsResponse> commentsDto) {
+    public NewsDtoResponse(Long id, String title, String content, String imageUrl,String sourceIcon,  LocalDateTime createdDate,
+                           LocalDateTime lastUpdatedDate, AuthorDtoResponse authorDto, List<TagDtoResponse> tagsDto,
+                           List<CommentsDtoForNewsResponse> commentsDto) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.imageUrl = imageUrl;
+        this.sourceIcon = sourceIcon;
         this.createdDate = createdDate;
         this.lastUpdatedDate = lastUpdatedDate;
         this.authorDto = authorDto;
@@ -46,6 +52,22 @@ public class NewsDtoResponse extends RepresentationModel<NewsDtoResponse> {
 
     public String getContent() {
         return content;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public String getSourceIcon() {
+        return sourceIcon;
+    }
+
+    public void setSourceIcon(String sourceIcon) {
+        this.sourceIcon = sourceIcon;
     }
 
     public LocalDateTime getCreatedDate() {

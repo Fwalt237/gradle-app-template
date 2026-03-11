@@ -1,20 +1,42 @@
 package com.mjc.school.controller.impl;
 
 import com.mjc.school.controller.BaseController;
-import com.mjc.school.controller.assembler.*;
+import com.mjc.school.controller.assembler.AuthorModelAssembler;
+import com.mjc.school.controller.assembler.CommentModelAssembler;
+import com.mjc.school.controller.assembler.LinkBuilderUtil;
+import com.mjc.school.controller.assembler.NewsModelAssembler;
+import com.mjc.school.controller.assembler.PageModelAssembler;
+import com.mjc.school.controller.assembler.TagModelAssembler;
 import com.mjc.school.service.BaseService;
-import com.mjc.school.service.dto.*;
+import com.mjc.school.service.dto.AuthorDtoResponse;
+import com.mjc.school.service.dto.CommentsDtoResponse;
+import com.mjc.school.service.dto.CreateNewsDtoRequest;
+import com.mjc.school.service.dto.NewsDtoResponse;
+import com.mjc.school.service.dto.PageDtoResponse;
+import com.mjc.school.service.dto.ResourceSearchFilterRequestDTO;
+import com.mjc.school.service.dto.TagDtoResponse;
+import com.mjc.school.service.dto.UpdateNewsDtoRequest;
 import com.mjc.school.service.impl.AuthorService;
 import com.mjc.school.service.impl.CommentService;
 import com.mjc.school.service.impl.TagService;
 import com.mjc.school.versioning.ApiVersion;
-import io.swagger.annotations.*;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
 
 import static com.mjc.school.controller.RestApiConst.NEWS_API_ROOT_PATH;
 

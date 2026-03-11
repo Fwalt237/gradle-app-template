@@ -1,10 +1,14 @@
 package com.mjc.school.controller.impl;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.notNullValue;
 
 @DisplayName("Authentication controller RestAssured integration tests")
 public class AuthenticationControllerTest extends BaseControllerTest {

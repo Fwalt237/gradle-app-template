@@ -3,11 +3,17 @@ package com.mjc.school.service.impl;
 import com.mjc.school.repository.filter.pagination.Pagination;
 import com.mjc.school.repository.impl.TagRepository;
 import com.mjc.school.repository.model.Tag;
-import com.mjc.school.service.dto.*;
+import com.mjc.school.service.dto.PageDtoResponse;
+import com.mjc.school.service.dto.ResourceSearchFilterRequestDTO;
+import com.mjc.school.service.dto.TagDtoRequest;
+import com.mjc.school.service.dto.TagDtoResponse;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.filter.ResourceSearchFilter;
 import com.mjc.school.service.filter.mapper.TagSearchFilterMapper;
 import com.mjc.school.service.mapper.TagMapper;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,15 +27,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Tag Service Unit tests")

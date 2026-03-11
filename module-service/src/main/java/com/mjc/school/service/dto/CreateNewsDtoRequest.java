@@ -2,19 +2,21 @@ package com.mjc.school.service.dto;
 
 import com.mjc.school.service.validator.constraint.NotNull;
 import com.mjc.school.service.validator.constraint.Size;
-import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public record CreateNewsDtoRequest(
     @NotNull
-    @Size(min = 5, max = 30)
+    @Size(min = 5, max = 1000)
     String title,
 
     @NotNull
-    @Size(min = 5, max = 255)
+    @Size(min = 5)
     String content,
+
+    String imageUrl,
+    String sourceIcon,
 
     @NotNull
     String author,

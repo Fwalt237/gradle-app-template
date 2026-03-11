@@ -14,6 +14,7 @@ import com.mjc.school.service.filter.ResourceSearchFilter;
 import com.mjc.school.service.filter.mapper.AuthorSearchFilterMapper;
 import com.mjc.school.service.mapper.AuthorMapper;
 import com.mjc.school.service.validator.Valid;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,9 +22,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
-import static com.mjc.school.service.exceptions.ServiceErrorCode.*;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.AUTHOR_CONFLICT;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.AUTHOR_DOES_NOT_EXIST_FOR_NEWS_ID;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.AUTHOR_ID_DOES_NOT_EXIST;
 
 @Service
 public class AuthorService
@@ -102,6 +104,7 @@ public class AuthorService
         }
     }
 
+    @Transactional(readOnly = true)
     public AuthorDtoResponse readByNewsId(Long newsId) {
         return authorRepository.findByNewsId(newsId)
             .map(mapper::modelToDto)

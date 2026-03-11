@@ -6,8 +6,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 
+
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
+import static org.hamcrest.Matchers.hasItems;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.hamcrest.Matchers.notNullValue;
 
 @DisplayName("News controller RestAssured integration tests")
 public class NewsControllerTest extends BaseControllerTest{
@@ -34,6 +41,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"RestAssured",
                     "content":"Testing framework",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Gosling",
                     "tags": ["Technology"],
                     "commentsIds":[]
@@ -63,6 +72,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"Re",
                     "content":"Te",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Gosling",
                     "tags": ["Technology"],
                     "commentsIds":[]
@@ -88,6 +99,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"RestAssured",
                     "content":"Testing framework",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Gosling",
                     "tags": ["Technology"],
                     "commentsIds":[]
@@ -138,6 +151,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"RestAssured",
                     "content":"Testing framework",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Gosling",
                     "tags": ["Technology"],
                     "commentsIds":[]
@@ -159,6 +174,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"Rest Updated",
                     "content":"Testing Updated",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Johnson",
                     "tags": ["Science"],
                     "commentsIds":[]
@@ -186,6 +203,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"RestAssured",
                     "content":"Testing framework",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Gosling",
                     "tags": ["Technology"],
                     "commentsIds":[]
@@ -208,6 +227,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"RestAssured",
                     "content":"Testing framework",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Gosling",
                     "tags": ["Technology"],
                     "commentsIds":[]
@@ -260,6 +281,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"RestAssured",
                     "content":"Testing framework",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Gosling",
                     "tags": ["Technology","Science"],
                     "commentsIds":[]
@@ -294,6 +317,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"RestAssured",
                     "content":"Testing framework",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Gosling",
                     "tags": ["Technology","Science"],
                     "commentsIds":[]
@@ -328,6 +353,8 @@ public class NewsControllerTest extends BaseControllerTest{
                 {
                     "title":"RestAssured",
                     "content":"Testing framework",
+                    "imageUrl": "https://example.com/image.jpg",
+                    "sourceIcon": "https://example.com/icon.png",
                     "author":"Gosling",
                     "tags": ["Technology","Science"],
                     "commentsIds":[]

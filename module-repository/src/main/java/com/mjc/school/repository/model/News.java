@@ -1,12 +1,23 @@
 package com.mjc.school.repository.model;
 
-import javax.persistence.*;
+import java.time.LocalDateTime;
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "news")
@@ -21,8 +32,14 @@ public class News implements BaseEntity<Long> {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "content")
+    @Column(name = "content", columnDefinition="TEXT")
     private String content;
+
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
+
+    @Column(name = "source_icon", columnDefinition = "TEXT")
+    private String sourceIcon;
 
     @Column(name = "created_date")
     @CreatedDate
@@ -111,4 +128,12 @@ public class News implements BaseEntity<Long> {
     public void setComments(List<Comment> comments) {
         this.comments = comments;
     }
+
+    public String getImageUrl() {return imageUrl;}
+
+    public void setImageUrl(String imageUrl) {this.imageUrl = imageUrl;}
+
+    public String getSourceIcon() {return sourceIcon;}
+
+    public void setSourceIcon(String sourceIcon) {this.sourceIcon = sourceIcon;}
 }

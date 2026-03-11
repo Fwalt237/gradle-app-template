@@ -6,9 +6,9 @@ import com.mjc.school.repository.filter.sorting.Sorting;
 import com.mjc.school.repository.filter.specification.SearchCriteria;
 import com.mjc.school.repository.filter.specification.SearchOperation;
 import com.mjc.school.service.filter.ResourceSearchFilter;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.util.CollectionUtils;
-
-import java.util.*;
 
 public abstract class BaseSearchFilterMapper<T> {
 

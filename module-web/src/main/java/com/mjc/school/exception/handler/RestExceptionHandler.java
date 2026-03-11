@@ -15,7 +15,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import static com.mjc.school.service.exceptions.ServiceErrorCode.*;
+
+import static com.mjc.school.service.exceptions.ServiceErrorCode.ACCESS_DENIED;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.API_VERSION_NOT_SUPPORTED;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.AUTHENTICATION_FAILED;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.BAD_CREDENTIALS;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.RESOURCE_NOT_FOUND;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.UNEXPECTED_ERROR;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.USERNAME_DOES_NOT_EXIST;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.VALIDATION;
 
 @ControllerAdvice
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {

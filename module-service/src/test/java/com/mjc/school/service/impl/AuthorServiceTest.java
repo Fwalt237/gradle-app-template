@@ -1,7 +1,6 @@
 package com.mjc.school.service.impl;
 
 
-
 import com.mjc.school.repository.filter.pagination.Pagination;
 import com.mjc.school.repository.impl.AuthorRepository;
 import com.mjc.school.repository.model.Author;
@@ -13,6 +12,10 @@ import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.filter.ResourceSearchFilter;
 import com.mjc.school.service.filter.mapper.AuthorSearchFilterMapper;
 import com.mjc.school.service.mapper.AuthorMapper;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,19 +24,20 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Author Service Unit tests")

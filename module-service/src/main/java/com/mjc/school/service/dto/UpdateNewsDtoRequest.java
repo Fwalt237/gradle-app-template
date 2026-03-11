@@ -8,12 +8,18 @@ import java.util.List;
 
 public record UpdateNewsDtoRequest(
     @Nullable
-    @Size(min = 5, max = 30)
+    @Size(min = 5, max = 1000)
     String title,
 
     @Nullable
-    @Size(min = 5, max = 255)
+    @Size(min = 5)
     String content,
+
+    @Nullable
+    String imageUrl,
+
+    @Nullable
+    String sourceIcon,
 
     @Nullable
     String author,

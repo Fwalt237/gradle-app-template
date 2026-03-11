@@ -1,8 +1,14 @@
 package com.mjc.school.repository.model;
 
-import javax.persistence.*;
-
 import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 
 @Entity
 @Table(name = "tags")
@@ -18,6 +24,12 @@ public class Tag implements BaseEntity<Long> {
 
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
     private List<News> news;
+
+    public Tag(String name){
+        this.name=name;
+    }
+
+    public Tag(){}
 
     public Long getId() {
         return id;

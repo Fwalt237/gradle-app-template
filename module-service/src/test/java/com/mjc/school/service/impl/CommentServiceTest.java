@@ -4,11 +4,18 @@ import com.mjc.school.repository.filter.pagination.Pagination;
 import com.mjc.school.repository.impl.CommentRepository;
 import com.mjc.school.repository.impl.NewsRepository;
 import com.mjc.school.repository.model.Comment;
-import com.mjc.school.service.dto.*;
+import com.mjc.school.service.dto.CommentsDtoRequest;
+import com.mjc.school.service.dto.CommentsDtoResponse;
+import com.mjc.school.service.dto.PageDtoResponse;
+import com.mjc.school.service.dto.ResourceSearchFilterRequestDTO;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.filter.ResourceSearchFilter;
 import com.mjc.school.service.filter.mapper.CommentsSearchFilterMapper;
 import com.mjc.school.service.mapper.CommentMapper;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,16 +29,15 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Comment Service Unit tests")

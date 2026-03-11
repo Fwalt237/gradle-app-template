@@ -2,6 +2,8 @@ package com.mjc.school.service.security.oauth2;
 
 import com.mjc.school.service.security.MyUser;
 import com.mjc.school.service.security.jwt.JwtUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -20,6 +22,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     private final JwtUtil jwtUtil;
 
+    private static final Logger log = LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
+
     @Autowired
     public OAuth2AuthenticationSuccessHandler(JwtUtil jwtUtil){
         this.jwtUtil = jwtUtil;
@@ -32,7 +36,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String targetUrl = determineTargetUrl(request,response,authentication);
 
         if(response.isCommitted()){
-            logger.debug("Response has already been committed. Unable to redirect to "+targetUrl);
+            log.debug("Response has already been committed. Unable to redirect to {}", targetUrl);
             return;
         }
         clearAuthenticationAttributes(request);

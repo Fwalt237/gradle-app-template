@@ -3,22 +3,22 @@ package com.mjc.school.service.mapper;
 import com.mjc.school.repository.impl.AuthorRepository;
 import com.mjc.school.repository.impl.CommentRepository;
 import com.mjc.school.repository.impl.TagRepository;
-import com.mjc.school.repository.model.Author;
-import com.mjc.school.repository.model.Comment;
 import com.mjc.school.repository.model.News;
 import com.mjc.school.service.dto.CommentsDtoForNewsResponse;
 import com.mjc.school.service.dto.CreateNewsDtoRequest;
 import com.mjc.school.service.dto.NewsDtoResponse;
 import com.mjc.school.service.dto.UpdateNewsDtoRequest;
-import com.mjc.school.service.exceptions.NotFoundException;
-import org.hibernate.Hibernate;
-import org.mapstruct.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.hibernate.Hibernate;
+import org.mapstruct.AfterMapping;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValueCheckStrategy;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 
 @Primary
 @Mapper(componentModel = "spring", uses = {AuthorMapper.class, TagMapper.class, CommentMapper.class},

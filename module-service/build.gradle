@@ -12,4 +12,6 @@ dependencies {
     implementation "org.aspectj:aspectjweaver:$aspectJVersion"
     implementation 'org.springframework:spring-context'
     implementation 'org.springframework:spring-tx'
+    implementation "org.jsoup:jsoup:$jsoupVersion"
+    implementation "org.slf4j:slf4j-api:$slf4jVersion"
 }

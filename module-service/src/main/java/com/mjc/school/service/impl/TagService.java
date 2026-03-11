@@ -2,17 +2,19 @@ package com.mjc.school.service.impl;
 
 import com.mjc.school.repository.exception.EntityConflictRepositoryException;
 import com.mjc.school.repository.impl.TagRepository;
-import com.mjc.school.repository.model.Author;
 import com.mjc.school.repository.model.Tag;
 import com.mjc.school.service.BaseService;
-import com.mjc.school.service.dto.*;
+import com.mjc.school.service.dto.PageDtoResponse;
+import com.mjc.school.service.dto.ResourceSearchFilterRequestDTO;
+import com.mjc.school.service.dto.TagDtoRequest;
+import com.mjc.school.service.dto.TagDtoResponse;
 import com.mjc.school.service.exceptions.NotFoundException;
 import com.mjc.school.service.exceptions.ResourceConflictServiceException;
 import com.mjc.school.service.filter.ResourceSearchFilter;
-import com.mjc.school.service.filter.mapper.BaseSearchFilterMapper;
 import com.mjc.school.service.filter.mapper.TagSearchFilterMapper;
 import com.mjc.school.service.mapper.TagMapper;
 import com.mjc.school.service.validator.Valid;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,9 +22,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 
-import static com.mjc.school.service.exceptions.ServiceErrorCode.*;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.TAG_CONFLICT;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.TAG_ID_DOES_NOT_EXIST;
 
 @Service
 public class TagService implements

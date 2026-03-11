@@ -3,6 +3,8 @@ package com.mjc.school.service.security.jwt;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.SignatureException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,6 +26,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsService userDetailsService;
+
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     @Autowired
     public JwtAuthenticationFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService){
@@ -54,13 +58,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         }catch(ExpiredJwtException eje){
-            logger.warn("Jwt token is expired: "+eje.getMessage());
+            log.warn("Jwt token is expired: {}", eje.getMessage());
         }catch(MalformedJwtException mje){
-            logger.warn("Invalid Jwt Token: "+mje.getMessage());
+            log.warn("Invalid Jwt Token: {}", mje.getMessage());
         }catch(SignatureException se){
-            logger.warn("Jwt token is tampered: "+se.getMessage());
+            log.warn("Jwt token is tampered: {}", se.getMessage());
         }catch(Exception e){
-            logger.error("Authentication failed: "+e.getMessage());
+            log.error("Authentication failed: {}", e.getMessage());
         }
 
         filterChain.doFilter(request,response);
