@@ -1,6 +1,5 @@
 package com.mjc.school.repository.impl;
 
-import com.mjc.school.repository.model.user.AuthProvider;
 import com.mjc.school.repository.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -16,5 +15,4 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     Boolean existsByEmail(String email);
 
-    Optional<User> findByProviderAndProviderId(AuthProvider provider, String providerId);
 }

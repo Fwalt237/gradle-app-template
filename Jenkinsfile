@@ -1,9 +1,15 @@
 pipeline {
   agent any
+
+  environment {
+    SONAR_TOKEN = credentials('SONAR_TOKEN')
+    JAR_PATH = 'module-web/build/libs/gradle-app-template.jar'
+  }
+
   stages {
     stage('Build & Test') {
       steps {
-        sh './gradlew clean build jacocoTestReport'
+        sh './gradlew clean :module-web:bootJar jacocoTestReport'
       }
     }
 
@@ -12,7 +18,6 @@ pipeline {
         withSonarQubeEnv('SonarServer') {
           sh "./gradlew sonar -Dsonar.token=${SONAR_TOKEN}"
         }
-
       }
     }
 
@@ -21,19 +26,23 @@ pipeline {
         timeout(time: 5, unit: 'MINUTES') {
           waitForQualityGate true
         }
-
       }
     }
 
-    stage('Deploy to Tomcat') {
+    stage('Archive Artifact') {
       steps {
-        deploy(adapters: [tomcat9(credentialsId: "${TOMCAT_CREDENTIALS}", url: 'http://localhost:8081')], contextPath: 'gradle-app-template', war: 'module-web/build/libs/gradle-app-template.war')
+        archiveArtifacts artifacts: "${JAR_PATH}", fingerprint: true
       }
     }
 
-  }
-  environment {
-    SONAR_TOKEN = credentials('SONAR_TOKEN')
-    TOMCAT_CREDENTIALS = '7dd412a3-6094-4af5-9931-779df3d3698a'
+    stage('Local Deployment') {
+      steps {
+        script {
+          sh "pkill -f 'gradle-app-template.jar' || true"
+          sh "nohup java -jar ${JAR_PATH} > app.log 2>&1 &"
+        }
+      }
+    }
+
   }
 }

@@ -1,5 +1,6 @@
 package com.mjc.school.controller.impl;
 
+import io.restassured.http.ContentType;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.jupiter.api.DisplayName;
@@ -33,7 +34,7 @@ public class CommentControllerTest extends BaseControllerTest {
 
 
     @Test
-    @DisplayName("POST /comments - Should return 201 and create comment")
+    @DisplayName("POST /comments - Should return 201 and show correct admin username")
     void createComment_ShouldReturn201() throws JSONException {
         String newsJson = """
                 {
@@ -70,10 +71,46 @@ public class CommentControllerTest extends BaseControllerTest {
                 .statusCode(HttpStatus.CREATED.value())
                 .body("id",notNullValue())
                 .body("content",equalTo("Great Tool"))
-                .body("newsId",equalTo(newsId));
+                .body("newsId",equalTo(newsId))
+                .body("authorName", equalTo("admin"));;
 
     }
 
+    @Test
+    @DisplayName("POST /comments as regular user - Should link to regularUser")
+    void createCommentAsUser_ShouldShowRegularUserName() throws JSONException {
+        String newsJson = """
+                {
+                    "title":"RestAssured",
+                    "content":"Testing framework",
+                    "author":"Gosling",
+                    "tags": ["Technology"],
+                    "commentsIds":[]
+                }
+                """;
+
+        Integer newsId = given()
+                            .spec(requestSpecification)
+                            .body(newsJson).post("/news")
+                        .then().extract()
+                            .path("id");
+
+        String userToken = obtainUserToken();
+
+        JSONObject commentJson = new JSONObject();
+        commentJson.put("content", "I am a regular user");
+        commentJson.put("newsId", newsId);
+
+        given()
+                .contentType(ContentType.JSON)
+                .header("Authorization", "Bearer " + userToken)
+                .body(commentJson.toString())
+        .when()
+                .post("/comments")
+        .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .body("authorName", equalTo("regularUser"));
+    }
 
     @Test
     @DisplayName("POST /comments with invalid data - Should return 400")

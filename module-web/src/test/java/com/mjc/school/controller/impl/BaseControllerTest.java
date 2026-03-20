@@ -37,7 +37,7 @@ public abstract class BaseControllerTest {
 
     protected RequestSpecification requestSpecification;
 
-    private static String adminToken;
+    protected String adminToken;
 
     @BeforeEach
     void setUp(){
@@ -51,6 +51,7 @@ public abstract class BaseControllerTest {
         } else {
             reinsertAdminIntoDb();
         }
+
 
         requestSpecification = new RequestSpecBuilder()
                 .setContentType(ContentType.JSON)

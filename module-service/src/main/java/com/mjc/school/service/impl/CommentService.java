@@ -3,7 +3,9 @@ package com.mjc.school.service.impl;
 import com.mjc.school.repository.exception.EntityConflictRepositoryException;
 import com.mjc.school.repository.impl.CommentRepository;
 import com.mjc.school.repository.impl.NewsRepository;
+import com.mjc.school.repository.impl.UserRepository;
 import com.mjc.school.repository.model.Comment;
+import com.mjc.school.repository.model.user.User;
 import com.mjc.school.service.BaseService;
 import com.mjc.school.service.dto.CommentsDtoRequest;
 import com.mjc.school.service.dto.CommentsDtoResponse;
@@ -20,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static com.mjc.school.service.exceptions.ServiceErrorCode.COMMENT_CONFLICT;
 import static com.mjc.school.service.exceptions.ServiceErrorCode.COMMENT_ID_DOES_NOT_EXIST;
 import static com.mjc.school.service.exceptions.ServiceErrorCode.NEWS_ID_DOES_NOT_EXIST;
+import static com.mjc.school.service.exceptions.ServiceErrorCode.USERNAME_DOES_NOT_EXIST;
 
 @Service
 public class CommentService
@@ -34,16 +38,19 @@ public class CommentService
 
     private final CommentRepository commentRepository;
     private final NewsRepository newsRepository;
+    private final UserRepository userRepository;
     private final CommentMapper mapper;
     private final CommentsSearchFilterMapper commentsSearchFilterMapper;
 
     @Autowired
     public CommentService(CommentRepository commentRepository,
                           NewsRepository newsRepository,
+                          UserRepository userRepository,
                           CommentMapper mapper,
                           CommentsSearchFilterMapper  commentsSearchFilterMapper) {
         this.commentRepository = commentRepository;
         this.newsRepository = newsRepository;
+        this.userRepository=userRepository;
         this.mapper = mapper;
         this.commentsSearchFilterMapper = commentsSearchFilterMapper;
     }
@@ -82,6 +89,13 @@ public class CommentService
         }
         try {
             Comment model = mapper.dtoToModel(createRequest);
+            String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            User currentUser = userRepository.findByUsername(currentUsername)
+                    .orElseThrow(() -> new NotFoundException(String.format(USERNAME_DOES_NOT_EXIST.getMessage())));
+
+            model.setUser(currentUser);
+
             model = commentRepository.save(model);
             return mapper.modelToDto(model);
         } catch (EntityConflictRepositoryException exc) {

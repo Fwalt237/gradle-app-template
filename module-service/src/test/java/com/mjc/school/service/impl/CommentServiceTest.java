@@ -3,7 +3,9 @@ package com.mjc.school.service.impl;
 import com.mjc.school.repository.filter.pagination.Pagination;
 import com.mjc.school.repository.impl.CommentRepository;
 import com.mjc.school.repository.impl.NewsRepository;
+import com.mjc.school.repository.impl.UserRepository;
 import com.mjc.school.repository.model.Comment;
+import com.mjc.school.repository.model.user.User;
 import com.mjc.school.service.dto.CommentsDtoRequest;
 import com.mjc.school.service.dto.CommentsDtoResponse;
 import com.mjc.school.service.dto.PageDtoResponse;
@@ -28,6 +30,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,6 +51,9 @@ public class CommentServiceTest {
 
     @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @Mock
     private NewsRepository newsRepository;
@@ -61,17 +70,33 @@ public class CommentServiceTest {
     private Comment comment;
     private CommentsDtoRequest commentDtoRequest;
     private CommentsDtoResponse commentDtoResponse;
+    private User user;
 
     @BeforeEach
     void setUp(){
+        user = new User();
+        user.setId(1L);
+        user.setUsername("Commentator");
+
         comment = new Comment();
         comment.setId(1L);
         comment.setContent("Spring Boot");
+        comment.setUser(user);
         comment.setCreatedDate(LocalDateTime.now());
         comment.setLastUpdatedDate(LocalDateTime.now());
 
         commentDtoRequest = new CommentsDtoRequest("Spring Boot",1L);
-        commentDtoResponse = new CommentsDtoResponse(1L,"Spring Boot",1L,LocalDateTime.now(),LocalDateTime.now());
+        commentDtoResponse = new CommentsDtoResponse(1L,"Spring Boot",1L,"Commentator",LocalDateTime.now(),LocalDateTime.now());
+
+    }
+
+    private void mockUserAuthentication(String username) {
+        Authentication auth = mock(Authentication.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+
+        when(auth.getName()).thenReturn(username);
+        when(securityContext.getAuthentication()).thenReturn(auth);
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Test
@@ -128,7 +153,10 @@ public class CommentServiceTest {
     @DisplayName("Should create comment successfully")
     void create_ShouldCreateAndReturnComment(){
 
+        mockUserAuthentication("Commentator");
+
         when(newsRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.findByUsername("Commentator")).thenReturn(Optional.of(user));
         when(mapper.dtoToModel(commentDtoRequest)).thenReturn(comment);
         when(commentRepository.save(comment)).thenReturn(comment);
         when(mapper.modelToDto(comment)).thenReturn(commentDtoResponse);
@@ -138,6 +166,7 @@ public class CommentServiceTest {
         assertThat(result).isNotNull();
         assertThat(result.getId()).isEqualTo(1L);
         assertThat(result.getContent()).isEqualTo("Spring Boot");
+        verify(userRepository).findByUsername("Commentator");
         verify(commentRepository).save(comment);
     }
 

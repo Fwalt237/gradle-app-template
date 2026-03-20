@@ -4,6 +4,8 @@ import com.mjc.school.service.security.MyUserDetailsService;
 import com.mjc.school.service.security.jwt.JwtAuthenticationFilter;
 import com.mjc.school.service.security.oauth2.MyOAuth2UserService;
 import com.mjc.school.service.security.oauth2.OAuth2AuthenticationSuccessHandler;
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +23,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.http.HttpServletResponse;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -67,7 +72,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
 
         http.
-                cors().and()
+                cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and()
@@ -79,6 +84,7 @@ public class SecurityConfig {
                     })
                 .and()
                 .authorizeRequests()
+                    .antMatchers("/", "/index.html", "/static/**", "/*.ico", "/*.json", "/*.png").permitAll()
                     .antMatchers("/api/v*/auth/**").permitAll()
                     .antMatchers("/oauth2/**").permitAll()
                     .antMatchers("/swagger-ui/**","/swagger-resources/**","/v*/api-docs").permitAll()
@@ -96,8 +102,9 @@ public class SecurityConfig {
                     .antMatchers(HttpMethod.PATCH,"/api/v*/*/**").hasRole("ADMIN")
                     .antMatchers(HttpMethod.PUT,"/api/v*/*/**").hasRole("ADMIN")
                     .antMatchers(HttpMethod.DELETE,"/api/v*/*/**").hasRole("ADMIN")
+                    .antMatchers("/api/**").authenticated()
 
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
                 .and()
                 .oauth2Login()
                     .userInfoEndpoint()
@@ -111,4 +118,16 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:8080"));
+        configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","PATCH","DELETE","OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization","Content-Type","x-auth-token","Accept"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization","x-auth-token"));
+        configuration.setAllowCredentials(true);
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
 }

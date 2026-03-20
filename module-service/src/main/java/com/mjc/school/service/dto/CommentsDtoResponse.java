@@ -11,18 +11,28 @@ public class CommentsDtoResponse extends RepresentationModel<CommentsDtoResponse
     private Long id;
     private String content;
     private Long newsId;
+    private String authorName;
     private LocalDateTime createdDate;
     private LocalDateTime lastUpdatedDate;
 
     public CommentsDtoResponse() {
     }
 
-    public CommentsDtoResponse(Long id, String content, Long newsId, LocalDateTime createdDate, LocalDateTime lastUpdatedDate) {
+    public CommentsDtoResponse(Long id, String content, Long newsId, String authorName, LocalDateTime createdDate, LocalDateTime lastUpdatedDate) {
         this.id = id;
         this.content = content;
         this.newsId = newsId;
+        this.authorName = authorName;
         this.createdDate = createdDate;
         this.lastUpdatedDate = lastUpdatedDate;
+    }
+
+    public String getAuthorName() {
+        return authorName;
+    }
+
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
     }
 
     public Long getId() {

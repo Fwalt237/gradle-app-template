@@ -23,7 +23,8 @@ public class MyUserDetailsService implements UserDetailsService {
     @Transactional(readOnly=true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(()->new UsernameNotFoundException(username+" not found."));
+                .orElseGet(() -> userRepository.findByEmail(username)
+                .orElseThrow(()->new UsernameNotFoundException(username+" not found.")));
 
         return new MyUser(user,null);
     }

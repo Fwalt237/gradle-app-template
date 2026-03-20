@@ -22,6 +22,7 @@ public abstract class CommentMapper {
     public abstract List<CommentsDtoResponse> modelListToDtoList(List<Comment> modelList);
 
     @Mapping(target = "newsId", expression = "java(model.getNews().getId())")
+    @Mapping(target = "authorName", expression = "java(model.getUser() != null ? model.getUser().getUsername() : \"Anonymous\")")
     public abstract CommentsDtoResponse modelToDto(Comment model);
 
     public abstract CommentsDtoForNewsResponse modelToDtoForNews(Comment model);

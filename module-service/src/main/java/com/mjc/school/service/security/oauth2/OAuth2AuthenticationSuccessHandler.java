@@ -1,7 +1,12 @@
 package com.mjc.school.service.security.oauth2;
 
+import com.mjc.school.repository.impl.UserRepository;
+import com.mjc.school.repository.model.user.AuthProvider;
+import com.mjc.school.repository.model.user.Role;
+import com.mjc.school.repository.model.user.User;
 import com.mjc.school.service.security.MyUser;
 import com.mjc.school.service.security.jwt.JwtUtil;
+import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +26,14 @@ import java.io.IOException;
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     private static final Logger log = LoggerFactory.getLogger(OAuth2AuthenticationSuccessHandler.class);
 
     @Autowired
-    public OAuth2AuthenticationSuccessHandler(JwtUtil jwtUtil){
+    public OAuth2AuthenticationSuccessHandler(JwtUtil jwtUtil,UserRepository userRepository){
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -46,7 +53,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) {
 
-        String targetUrl = "http://localhost:8080/api/v1/news?page=0&size=10";
+        String targetUrl = "http://localhost:3000/v1/news";
         Object principal = authentication.getPrincipal();
 
         String username;
@@ -56,7 +63,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
         else if (principal instanceof OAuth2User) {
             OAuth2User oAuth2User = (OAuth2User) principal;
-
 
             String registrationId = ((OAuth2AuthenticationToken) authentication)
                     .getAuthorizedClientRegistrationId();
@@ -70,6 +76,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             if (username == null || username.isEmpty()) {
                 username = oauth2UserInfo.getName();
             }
+            persistNewUser(oauth2UserInfo, registrationId);
         } else {
             username = principal.toString();
         }
@@ -79,5 +86,31 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         return UriComponentsBuilder.fromUriString(targetUrl)
                 .queryParam("token", token)
                 .build().toUriString();
+    }
+
+    private void persistNewUser(OAuth2UserInfo userInfo, String registrationId) {
+        String email = userInfo.getEmail();
+
+        if (userRepository.findByEmail(email).isEmpty()) {
+            log.info("Registering new OAuth2 user: {}", email);
+
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setFirstName(userInfo.getName());
+            newUser.setUsername(email);
+            newUser.setEnabled(true);
+            newUser.setAccountNonExpired(true);
+            newUser.setAccountNonLocked(true);
+            newUser.setCredentialsNonExpired(true);
+            newUser.setPassword(UUID.randomUUID().toString());
+            newUser.getRoles().add(Role.ROLE_USER);
+            try {
+                newUser.setProvider(AuthProvider.valueOf(registrationId.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                log.warn("Unknown provider {}, defaulting to LOCAL", registrationId);
+                newUser.setProvider(AuthProvider.LOCAL);
+            }
+            userRepository.save(newUser);
+        }
     }
 }

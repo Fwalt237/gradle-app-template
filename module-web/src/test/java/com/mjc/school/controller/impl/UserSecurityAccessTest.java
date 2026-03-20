@@ -23,7 +23,7 @@ public class UserSecurityAccessTest extends BaseControllerTest {
     void user_ShouldBeAllowed_ToPostComment() {
 
         Integer newsId = given().spec(requestSpecification)
-                .body("{\"title\":\"Secure News\",\"content\":\"Content\",\"author\":\"Gosling\",\"tags\":[]}")
+                .body("{\"title\":\"Secure News\",\"content\":\"Content of this Secure News\",\"author\":\"Gosling\",\"tags\":[],\"commentsIds\":[]}")
                 .post("/news").then().extract().path("id");
 
         String commentJson = String.format("{\"content\":\"Valid comment\", \"newsId\":%d}", newsId);

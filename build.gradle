@@ -47,6 +47,7 @@ subprojects{
             enabled = false
         }
     }
+
     jar {
         enabled = true
     }
@@ -114,27 +115,6 @@ subprojects{
                 "-Xlint:unchecked",
                 "-parameters",
         ]
-    }
-}
-
-project(':module-web') {
-    apply plugin: 'war'
-
-    war{
-        enabled = true
-        archiveFileName = "gradle-app-template.war"
-    }
-
-    plugins.withId('org.springframework.boot') {
-        bootJar {
-            enabled = false
-        }
-        bootWar{
-            enabled = false
-        }
-        jar{
-            enabled = false
-        }
     }
 }
 

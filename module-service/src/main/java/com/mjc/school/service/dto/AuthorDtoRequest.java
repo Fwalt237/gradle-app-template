@@ -5,6 +5,6 @@ import com.mjc.school.service.validator.constraint.Size;
 
 public record AuthorDtoRequest(
     @NotNull
-    @Size(min = 3, max = 15)
+    @Size(min = 3)
     String name) {
 }

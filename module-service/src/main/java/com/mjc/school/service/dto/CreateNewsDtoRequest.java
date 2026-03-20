@@ -8,11 +8,11 @@ import java.util.List;
 
 public record CreateNewsDtoRequest(
     @NotNull
-    @Size(min = 5, max = 1000)
+    @Size(min = 6, max = 1000)
     String title,
 
     @NotNull
-    @Size(min = 5)
+    @Size(min = 12)
     String content,
 
     String imageUrl,
