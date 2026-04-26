@@ -4,8 +4,6 @@
 <img width="960" height="540" alt="conscndesc" src="https://github.com/user-attachments/assets/a86180b2-c2c1-44fc-883d-7154efc6eefe" />
 <img width="1920" height="1080" alt="consscanconst" src="https://github.com/user-attachments/assets/61b9d565-944c-44f1-9028-d266d80767cf" />
 <img width="960" height="540" alt="cliscantable" src="https://github.com/user-attachments/assets/82910794-2be4-4186-a005-f49d700ddccf" />
-<img width="960" height="540" alt="cliquerstar" src="https://github.com/user-attachments/assets/d0bb718c-e307-490b-acef-63177f5f8cb2" />
-<img width="960" height="540" alt="cliqryssvico" src="https://github.com/user-attachments/assets/c968d005-7e49-4682-b32c-2a48c15361b6" />
 <img width="960" height="540" alt="cliqurydescr" src="https://github.com/user-attachments/assets/6f262c41-d089-482a-8409-24f6315899dd" />
 <img width="960" height="540" alt="cliscanconst" src="https://github.com/user-attachments/assets/9fa67dd5-f42a-4621-bcaf-e7a200e1dfac" />
 <img width="960" height="540" alt="python" src="https://github.com/user-attachments/assets/6e0def7f-f194-44f5-be6e-92019ecf0a5f" />
